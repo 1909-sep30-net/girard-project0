@@ -4,7 +4,12 @@ using System.Text;
 
 namespace BusinessLibrary
 {
-    class BlockBuster
+    public class BlockBuster
     {
+        public string Location { get; set; }
+
+        public List<Product> Inventory = new List<Product>();
+
+
     }
 }

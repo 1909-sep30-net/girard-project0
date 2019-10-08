@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BusinessLibrary
 {
-    public class Movie : Product
+    public class Game : Product
     {
         public int InventoryAmount { get; set; }
 

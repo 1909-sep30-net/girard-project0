@@ -6,17 +6,27 @@ namespace BusinessLibrary
 {
     public class Order
     {
-        public string StoreLocation { get; set; }
         
         public Customer Customer { get; set; }
         public DateTime OrderDate { get; }
-        public List<Movie> MovieList = new List<Movie>();
+        public List<Product> ProductList = new List<Product>();
 
-        public Order (Customer c, string sLocation, DateTime date)
+        public Order (Customer c, BlockBuster b)
         {
-            this.StoreLocation = sLocation;
             this.Customer = c;
-            this.OrderDate = date;
+            this.OrderDate = DateTime.Now;
+        }
+
+        public void AddItem(Movie m)
+        {
+            ProductList.Add(m);
+            m.InventoryAmount--;
+        }
+
+        public void AddItem(Game g)
+        {
+            ProductList.Add(g);
+            g.InventoryAmount--;
         }
 
     }

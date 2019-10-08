@@ -5,26 +5,30 @@ namespace BusinessLibrary
 {
     public class Customer
     {
-        public int CustomerId { get; set; }
+
+        private string _FirstName;
+        private string _LastName;
+
+
         public string FirstName
         {
             get 
             {
-                return FirstName;
+                return _FirstName;
             } set
             {
                 if (value == null)
                 {
                     throw new ArgumentNullException(nameof(value));
                 }
-                this.FirstName = value;
+                this._FirstName = value;
             } 
         }
         public string LastName 
         {
             get
             {
-                return LastName;
+                return _LastName;
             }
             set
             {
@@ -32,15 +36,16 @@ namespace BusinessLibrary
                 {
                     throw new ArgumentNullException(nameof(value));
                 }
-                this.LastName = value;
+                this._LastName = value;
             }
         }
 
+        public Order order { get; set; }
+
         public List<Order> OrderHistory = new List<Order>();
 
-        public Customer(int Id, string FName, string LName)
+        public Customer(string FName, string LName)
         {
-            this.CustomerId = Id;
             this.FirstName = FName;
             this.LastName = LName;
         }
