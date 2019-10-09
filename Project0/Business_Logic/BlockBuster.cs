@@ -12,9 +12,16 @@ namespace BusinessLibrary
 
         public List<Order> OrderHistory = new List<Order>();
 
+        public List<Customer> Customers = new List<Customer>();
+
         public BlockBuster (string location)
         {
             this.Location = Location;
+        }
+
+        public void AddInventory(Product p)
+        {
+            Inventory.Add(p);
         }
 
         public void LogOrder(Order order)
@@ -24,7 +31,7 @@ namespace BusinessLibrary
 
         public void AddCustomer(Customer c)
         {
-
+            Customers.Add(c);
         }
 
     }

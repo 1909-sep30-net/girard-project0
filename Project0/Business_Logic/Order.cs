@@ -17,17 +17,12 @@ namespace BusinessLibrary
             this.OrderDate = DateTime.Now;
         }
 
-        public void AddItem(Movie m)
+        public void AddItem(Product p)
         {
-            ProductList.Add(m);
-            m.InventoryAmount--;
+            ProductList.Add(p);
+            p.InventoryAmount--;
         }
 
-        public void AddItem(Game g)
-        {
-            ProductList.Add(g);
-            g.InventoryAmount--;
-        }
 
     }
 }

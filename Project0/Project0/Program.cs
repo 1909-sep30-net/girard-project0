@@ -1,5 +1,6 @@
 ﻿using BusinessLibrary;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Project0
@@ -11,6 +12,9 @@ namespace Project0
             BlockBuster arlington = new BlockBuster("Arlington");
             BlockBuster dallas = new BlockBuster("Dallas");
             BlockBuster houston = new BlockBuster("Houston");
+
+            Product m = new Product("batman", "90 minutes", 15.0, "R", 5);
+            arlington.AddInventory(m);
 
 
             string select;
@@ -37,15 +41,28 @@ namespace Project0
                         Order order = new Order(customer, arlington);
                         Console.WriteLine("Enter the title of your selection");
                         string selection = Console.ReadLine();
-                        var one = order.ProductList.Where(x => arlington.Inventory.Any(p => p.Title == selection));
+                        var one = from product in arlington.Inventory
+                                      where product.Title.Equals(selection)
+                                      select product;
+                        Product add = one.Single();
+                        order.AddItem(add);
+                        customer.LogOrder(order);
+                        arlington.LogOrder(order);
+                        break;
+                    case 2:
+                        List<string> search = AskCustomerName();
                         break;
                         
                 }
-            } while (Int32.Parse(select) != 6);
+            } while (Int32.Parse(select) <= 6);
         }
 
-        public void DisplayOrderHistory (Customer c)
+        public static void DisplayOrderHistory (Customer c)
         {
+            foreach (Order o in c.OrderHistory)
+            {
+                Console.WriteLine($"{o.Customer} {o.OrderDate} {o.ProductList}");
+            }
 
         }
 
@@ -58,14 +75,27 @@ namespace Project0
         {
             foreach (Product p in b.Inventory)
             {
-                Console.WriteLine(p);
+                Console.WriteLine($"{p.Title} {p.Details} {p.Price} {p.Rating}" );
             }
+        }
+
+        public static List<string> AskCustomerName()
+        {
+            Console.WriteLine("Enter Customer's First Name");
+            string fname = Console.ReadLine();
+            Console.WriteLine("Enter Customer's Last Name");
+            string lname = Console.ReadLine();
+            List<string> name = new List<string>();
+            name.Add(fname);
+            name.Add(lname);
+            return name;
         }
 
         public static void PrintMenu()
         {
             Console.WriteLine("\n\tMENU\n=======================================");
             Console.WriteLine("\nMake an order ");
+            Console.WriteLine("\nDisplay customer order history");
             Console.WriteLine("\n=======================================");
             Console.WriteLine("\n Enter your choice (from 1 to 9 ): ");
         }
