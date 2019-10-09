@@ -15,13 +15,21 @@ namespace BusinessLibrary
             get 
             {
                 return _FirstName;
-            } set
+            } 
+            set
             {
-                if (value == null)
+                if (value == "")
                 {
-                    throw new ArgumentNullException(nameof(value));
+                    Console.WriteLine("You forgot to enter the customer's first name");
                 }
-                this._FirstName = value;
+                else if (value.Length > 20)
+                {
+                    Console.WriteLine("That first name exceeds the 25 character limit\n Please try again.\n");
+                }
+                else
+                {
+                    this._FirstName = value;
+                }
             } 
         }
         public string LastName 
@@ -32,11 +40,18 @@ namespace BusinessLibrary
             }
             set
             {
-                if (value == null)
+                if (value == "")
                 {
-                    throw new ArgumentNullException(nameof(value));
+                    Console.WriteLine("You forgot to enter the customer's last name");
                 }
-                this._LastName = value;
+                else if (value.Length > 20)
+                {
+                    Console.WriteLine("That last name exceeds the 25 character limit\n Please try again.\n");
+                }
+                else
+                {
+                    this._LastName = value;
+                }
             }
         }
 
@@ -53,14 +68,6 @@ namespace BusinessLibrary
         public void LogOrder(Order order)
         {
             OrderHistory.Add(order);
-        }
-
-        public void DisplayOrderHistory(Customer c)
-        {
-            foreach (Order o in c.OrderHistory)
-            {
-                Console.WriteLine(o);
-            }
         }
 
     }

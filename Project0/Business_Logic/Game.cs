@@ -6,8 +6,9 @@ namespace BusinessLibrary
 {
     public class Game : Product
     {
-        public int InventoryAmount { get; set; }
+        public enum RatingList { G, T, M }
 
-        public string Title { get; set; }
+        public enum GameTypeList { FPS, RPG, ARPG, Racing }
+        public string GameType { get; set; }
     }
 }

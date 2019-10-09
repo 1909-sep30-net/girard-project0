@@ -11,7 +11,7 @@ namespace BusinessLibrary
         public DateTime OrderDate { get; }
         public List<Product> ProductList = new List<Product>();
 
-        public Order (Customer c)
+        public Order (Customer c, BlockBuster b)
         {
             this.Customer = c;
             this.OrderDate = DateTime.Now;

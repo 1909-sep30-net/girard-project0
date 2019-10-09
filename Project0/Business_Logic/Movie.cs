@@ -6,8 +6,9 @@ namespace BusinessLibrary
 {
     public class Movie : Product
     {
-        public int InventoryAmount { get; set; }
+        public enum RatingList { G, PG, PG13, R }
+        public string Runtime { get; set; }
 
-        public string Title { get; set; }
+
     }
 }
