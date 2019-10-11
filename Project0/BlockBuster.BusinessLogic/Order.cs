@@ -6,12 +6,12 @@ namespace BusinessLibrary
 {
     public class Order
     {
-        
+
         public Customer Customer { get; set; }
         public DateTime OrderDate { get; }
         public List<Product> ProductList = new List<Product>();
 
-        public Order (Customer c, BlockBuster b)
+        public Order(Customer c, BlockBuster b)
         {
             this.Customer = c;
             this.OrderDate = DateTime.Now;
@@ -19,8 +19,13 @@ namespace BusinessLibrary
 
         public void AddItem(Product p)
         {
-            ProductList.Add(p);
-            p.InventoryAmount--;
+            if (p.InventoryAmount > 0) {
+                ProductList.Add(p);
+                p.InventoryAmount--;
+            } else
+            {
+                Console.WriteLine("That item is out of stock");
+            }
         }
 
 

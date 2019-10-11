@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataLibrary
+namespace BlockBuster.DataAccess
 {
     public class Class1
     {

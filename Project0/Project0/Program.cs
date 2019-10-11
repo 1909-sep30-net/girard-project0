@@ -51,6 +51,13 @@ namespace Project0
                         break;
                     case 2:
                         List<string> search = AskCustomerName();
+                        foreach (Customer c in arlington.Customers)
+                        {
+                            if (c.FirstName.Equals(search[0]) && c.LastName.Equals(search[1]))
+                            {
+                                DisplayOrderHistory(c);
+                            }
+                        }
                         break;
                         
                 }
@@ -59,9 +66,14 @@ namespace Project0
 
         public static void DisplayOrderHistory (Customer c)
         {
+            Console.WriteLine($"{c.FirstName} {c.LastName}");
             foreach (Order o in c.OrderHistory)
             {
-                Console.WriteLine($"{o.Customer} {o.OrderDate} {o.ProductList}");
+                Console.WriteLine($"{o.OrderDate}");
+                foreach (Product p in o.ProductList)
+                {
+                    Console.WriteLine($"{p.Title} {p.Details} {p.Price} {p.Rating}");
+                }
             }
 
         }
