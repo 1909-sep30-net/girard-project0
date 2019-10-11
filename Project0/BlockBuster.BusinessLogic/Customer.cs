@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessLibrary
+namespace BusinessLogic
 {
     public class Customer
     {

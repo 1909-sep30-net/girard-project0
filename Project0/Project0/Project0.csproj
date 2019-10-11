@@ -16,4 +16,9 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BlockBuster.BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\BlockBuster.DataAccess\DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

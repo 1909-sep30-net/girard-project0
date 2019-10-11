@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project0", "Project0\Projec
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project0_Tester", "Project0_Tester\Project0_Tester.csproj", "{AC6D131B-CBCB-4707-8BE4-A476136E54FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockBuster.BusinessLogic", "BlockBuster.BusinessLogic\BlockBuster.BusinessLogic.csproj", "{5EB021AB-94BB-49E9-8864-298E88C362FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogic", "BlockBuster.BusinessLogic\BusinessLogic.csproj", "{5EB021AB-94BB-49E9-8864-298E88C362FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockBuster.DataAccess", "BlockBuster.DataAccess\BlockBuster.DataAccess.csproj", "{C10D6788-B612-42B3-BDC1-7419C2D2E49D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "BlockBuster.DataAccess\DataAccess.csproj", "{C10D6788-B612-42B3-BDC1-7419C2D2E49D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

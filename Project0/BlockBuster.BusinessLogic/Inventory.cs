@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BusinessLibrary
+namespace BusinessLogic
 {
     class Inventory
     {
