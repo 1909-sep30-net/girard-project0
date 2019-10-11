@@ -1,5 +1,8 @@
 ﻿using BusinessLogic;
 using DataAccess;
+using DataAccess.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +11,20 @@ namespace Project0
 {
     public class Program
     {
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => {
+            builder.AddConsole();
+        });
         static void Main(string[] args)
         {
+            string connectionString = SecretConfiguration.ConnectionString;
+
+            DbContextOptions<BlockBusterContext> options = new DbContextOptionsBuilder<BlockBusterContext>()
+                .UseSqlServer(connectionString)
+                .UseLoggerFactory(MyLoggerFactory)
+                .Options;
+
+            using var context = new BlockBusterContext(options);
+
             BlockBuster arlington = new BlockBuster("Arlington");
             BlockBuster dallas = new BlockBuster("Dallas");
             BlockBuster houston = new BlockBuster("Houston");
@@ -24,7 +39,7 @@ namespace Project0
             {
                 PrintMenu();
 
-               
+
                 select = Console.ReadLine();
 
                 switch (Int32.Parse(select))
@@ -43,8 +58,8 @@ namespace Project0
                         Console.WriteLine("Enter the title of your selection");
                         string selection = Console.ReadLine();
                         var one = from product in arlington.Inventory
-                                      where product.Title.Equals(selection)
-                                      select product;
+                                  where product.Title.Equals(selection)
+                                  select product;
                         Product add = one.Single();
                         order.AddItem(add);
                         customer.LogOrder(order);
@@ -60,12 +75,12 @@ namespace Project0
                             }
                         }
                         break;
-                        
+
                 }
             } while (Int32.Parse(select) <= 6);
         }
 
-        public static void DisplayOrderHistory (Customer c)
+        public static void DisplayOrderHistory(Customer c)
         {
             Console.WriteLine($"{c.FirstName} {c.LastName}");
             foreach (Order o in c.OrderHistory)
@@ -79,16 +94,16 @@ namespace Project0
 
         }
 
-        public void DisplayOrderHistory (BlockBuster b, string location)
+        public void DisplayOrderHistory(BlockBuster b, string location)
         {
 
         }
 
-        public static void DisplayProducts (BlockBuster b)
+        public static void DisplayProducts(BlockBuster b)
         {
             foreach (Product p in b.Inventory)
             {
-                Console.WriteLine($"{p.Title} {p.Details} {p.Price} {p.Rating}" );
+                Console.WriteLine($"{p.Title} {p.Details} {p.Price} {p.Rating}");
             }
         }
 
