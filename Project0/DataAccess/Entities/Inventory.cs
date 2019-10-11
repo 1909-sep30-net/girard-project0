@@ -15,7 +15,7 @@ namespace DataAccess.Entities
         public string Rating { get; set; }
         public string Details { get; set; }
         public decimal Price { get; set; }
-        public int Stock { get; set; }
+        public int InventoryAmount { get; set; }
         public int LocationId { get; set; }
 
         public virtual Stores Location { get; set; }
