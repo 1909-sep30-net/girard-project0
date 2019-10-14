@@ -22,10 +22,6 @@ namespace BusinessLogic
             this.LocationId = id;
         }
 
-        public void AddInventory(Product p)
-        {
-            Inventory.Add(p);
-        }
 
         public void LogOrder(Order order)
         {
