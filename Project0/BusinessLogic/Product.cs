@@ -10,18 +10,33 @@ namespace BusinessLogic
 
         public string Title { get; set; }
 
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public string Rating { get; set; }
 
         public string Details { get; set; }
 
-        public Product(string title, string details, double price, string rating, int count)
+        public int ProductId { get; set; }
+
+        public Product(int id, string title, string details, decimal price, string rating, int count)
         {
+            this.ProductId = id;
             this.Title = title;
             this.Details = details;
             this.Price = price;
             this.Rating = rating;
             this.InventoryAmount = count;
+        }
+
+        public void ReduceInventory ()
+        {
+            if (this.InventoryAmount > 0)
+            {
+                this.InventoryAmount--;
+            }
+            else
+            {
+                Console.WriteLine("That item is out of stock");
+            }
         }
     }
 }

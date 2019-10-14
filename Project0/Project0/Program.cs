@@ -1,6 +1,7 @@
 ﻿using BusinessLogic;
 using DataAccess;
 using DataAccess.Entities;
+using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,12 +26,9 @@ namespace Project0
 
             using var context = new BlockBusterContext(options);
 
-            BlockBuster arlington = new BlockBuster("Arlington");
-            BlockBuster dallas = new BlockBuster("Dallas");
-            BlockBuster houston = new BlockBuster("Houston");
+            var repository = new BlockBusterRepository(context);
 
-            Product m = new Product("batman", "90 minutes", 15.0, "R", 5);
-            arlington.AddInventory(m);
+
 
 
             string select;
@@ -45,40 +43,37 @@ namespace Project0
                 switch (Int32.Parse(select))
                 {
                     case 1:
+                        
+                        repository.DisplayStores();
+                        Console.WriteLine("Please enter the ID of your desired location?");
+                        string id = Console.ReadLine();
+                        var sqlStore = repository.GetStoreById(Int32.Parse(id));
+                        BlockBuster store = new BlockBuster(sqlStore.LocationId, $"{sqlStore.City}, {sqlStore.State}");
                         Console.WriteLine("Enter Customer's First Name");
                         string fname = Console.ReadLine();
                         Console.WriteLine("Enter Customer's Last Name");
                         string lname = Console.ReadLine();
-                        Customer customer = new Customer(fname, lname);
-                        Console.WriteLine("Thank you for visiting our Arlington location");
+                        var sqlCustomer = repository.GetCustomerByName(fname, lname);
+                        Customer customer = new Customer(sqlCustomer.CustomerId, sqlCustomer.FirstName, sqlCustomer.LastName);
+                        Console.WriteLine($"Thank you for visiting our {store.Location} location");
                         Console.WriteLine("This is our current selection of movies and video games");
-                        DisplayProducts(arlington);
-                        arlington.AddCustomer(customer);
-                        Order order = new Order(customer, arlington);
-                        Console.WriteLine("Enter the title of your selection");
+                        repository.DisplayInventory(sqlStore);
+                        Order order = new Order();
+                        repository.MakeOrder(customer.CustomerId, store.LocationId, order.OrderDate);
+                        Console.WriteLine("Enter the ID number of your selection");
                         string selection = Console.ReadLine();
-                        var one = from product in arlington.Inventory
-                                  where product.Title.Equals(selection)
-                                  select product;
-                        Product add = one.Single();
-                        order.AddItem(add);
-                        customer.LogOrder(order);
-                        arlington.LogOrder(order);
+                        var sqlProduct = repository.GetProductById(store.LocationId, Int32.Parse(selection));
+                        Product add = new Product(sqlProduct.InventoryId, sqlProduct.Title, sqlProduct.Details, sqlProduct.Price, sqlProduct.Rating, sqlProduct.InventoryAmount);
+                        add.ReduceInventory();   
+                        repository.AddProductToOrder(order.OrderId, add.ProductId);
                         break;
                     case 2:
-                        List<string> search = AskCustomerName();
-                        foreach (Customer c in arlington.Customers)
-                        {
-                            if (c.FirstName.Equals(search[0]) && c.LastName.Equals(search[1]))
-                            {
-                                DisplayOrderHistory(c);
-                            }
-                        }
                         break;
 
                 }
             } while (Int32.Parse(select) <= 6);
         }
+
 
         public static void DisplayOrderHistory(Customer c)
         {

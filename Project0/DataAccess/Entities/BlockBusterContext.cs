@@ -17,15 +17,25 @@ namespace DataAccess.Entities
 
         public virtual DbSet<Customers> Customers { get; set; }
         public virtual DbSet<Inventory> Inventory { get; set; }
+        public virtual DbSet<OrderDetails> OrderDetails { get; set; }
         public virtual DbSet<Orders> Orders { get; set; }
         public virtual DbSet<Stores> Stores { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=tcp:gsanfordsql.database.windows.net,1433;Initial Catalog=BlockBuster;Persist Security Info=False;User ID=goldeneagleseth;Password=Harpyeagle2;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customers>(entity =>
             {
                 entity.HasKey(e => e.CustomerId)
-                    .HasName("PK__Customer__A4AE64B81EC0F968");
+                    .HasName("PK__Customer__A4AE64B8D45FCCDE");
 
                 entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
 
@@ -62,19 +72,41 @@ namespace DataAccess.Entities
                     .WithMany(p => p.Inventory)
                     .HasForeignKey(d => d.LocationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Inventory__Locat__6754599E");
+                    .HasConstraintName("FK__Inventory__Locat__72C60C4A");
+            });
+
+            modelBuilder.Entity<OrderDetails>(entity =>
+            {
+                entity.HasKey(e => e.OrderDetailId)
+                    .HasName("PK__OrderDet__D3B9D30C15CC5D69");
+
+                entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+
+                entity.Property(e => e.InventoryId).HasColumnName("InventoryID");
+
+                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+
+                entity.HasOne(d => d.Inventory)
+                    .WithMany(p => p.OrderDetails)
+                    .HasForeignKey(d => d.InventoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__OrderDeta__Inven__7A672E12");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.OrderDetails)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__OrderDeta__Order__797309D9");
             });
 
             modelBuilder.Entity<Orders>(entity =>
             {
                 entity.HasKey(e => e.OrderId)
-                    .HasName("PK__Orders__C3905BAFB80FC337");
+                    .HasName("PK__Orders__C3905BAF390EB5A8");
 
                 entity.Property(e => e.OrderId).HasColumnName("OrderID");
 
                 entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
-
-                entity.Property(e => e.InventoryId).HasColumnName("InventoryID");
 
                 entity.Property(e => e.LocationId).HasColumnName("LocationID");
 
@@ -82,25 +114,19 @@ namespace DataAccess.Entities
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__Customer__6A30C649");
-
-                entity.HasOne(d => d.Inventory)
-                    .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.InventoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__Inventor__6B24EA82");
+                    .HasConstraintName("FK__Orders__Customer__75A278F5");
 
                 entity.HasOne(d => d.Location)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.LocationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__Location__6C190EBB");
+                    .HasConstraintName("FK__Orders__Location__76969D2E");
             });
 
             modelBuilder.Entity<Stores>(entity =>
             {
                 entity.HasKey(e => e.LocationId)
-                    .HasName("PK__Stores__E7FEA4771CAC65D2");
+                    .HasName("PK__Stores__E7FEA47714A77E69");
 
                 entity.Property(e => e.LocationId).HasColumnName("LocationID");
 

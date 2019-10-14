@@ -55,12 +55,15 @@ namespace BusinessLogic
             }
         }
 
+        public int CustomerId { get; set; }
+
         public Order order { get; set; }
 
         public List<Order> OrderHistory = new List<Order>();
 
-        public Customer(string FName, string LName)
+        public Customer(int id, string FName, string LName)
         {
+            this.CustomerId = id;
             this.FirstName = FName;
             this.LastName = LName;
         }

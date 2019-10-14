@@ -7,7 +7,7 @@ namespace DataAccess.Entities
     {
         public Inventory()
         {
-            Orders = new HashSet<Orders>();
+            OrderDetails = new HashSet<OrderDetails>();
         }
 
         public int InventoryId { get; set; }
@@ -19,6 +19,6 @@ namespace DataAccess.Entities
         public int LocationId { get; set; }
 
         public virtual Stores Location { get; set; }
-        public virtual ICollection<Orders> Orders { get; set; }
+        public virtual ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }

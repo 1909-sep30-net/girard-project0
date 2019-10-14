@@ -16,14 +16,25 @@ Create Table Inventory (
 	Rating NVARCHAR(6) NOT NULL,
 	Details NVARCHAR(200) NOT NULL,
 	Price Money NOT NULL,
-	Stock INT NOT NULL,
+	InventoryAmount INT NOT NULL,
 	LocationID INT NOT NULL Foreign Key References Stores(LocationID)
 )
 
 Create Table Orders (
 	OrderID INT NOT NULL Identity Primary Key,
 	CustomerID INT NOT NULL Foreign Key References Customers(CustomerID),
-	InventoryID INT NOT NULL Foreign Key References Inventory(InventoryID),
 	LocationID INT NOT NULL Foreign Key References Stores(LocationID),
 	Date Datetime2 NOT NULL
 )
+
+Create Table OrderDetails (
+	OrderDetailID INT NOT NULL Identity Primary Key,
+	OrderID INT NOT NULL Foreign Key References Orders(OrderID),
+	InventoryID INT NOT NULL Foreign Key References Inventory(InventoryID)
+)
+
+Drop Table OrderDetails
+Drop Table Orders
+Drop Table Inventory
+Drop Table Customers
+Drop Table Stores

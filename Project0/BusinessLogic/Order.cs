@@ -7,17 +7,18 @@ namespace BusinessLogic
     public class Order
     {
 
-        public Customer Customer { get; set; }
         public DateTime OrderDate { get; }
         public List<Product> ProductList = new List<Product>();
+        public int OrderId { get; set; }
+        public int StoreId { get; set; }
+        public int CustomerId { get; set; }
 
-        public Order(Customer c, BlockBuster b)
+        public Order()
         {
-            this.Customer = c;
             this.OrderDate = DateTime.Now;
         }
 
-        public void AddItem(Product p)
+        public void ReduceInventory(Product p)
         {
             if (p.InventoryAmount > 0) {
                 ProductList.Add(p);

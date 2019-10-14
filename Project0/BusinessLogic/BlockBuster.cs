@@ -8,15 +8,18 @@ namespace BusinessLogic
     {
         public string Location { get; set; }
 
+        public int LocationId { get; set; }
+
         public List<Product> Inventory = new List<Product>();
 
         public List<Order> OrderHistory = new List<Order>();
 
         public List<Customer> Customers = new List<Customer>();
 
-        public BlockBuster (string location)
+        public BlockBuster (int id, string location)
         {
-            this.Location = Location;
+            this.Location = location;
+            this.LocationId = id;
         }
 
         public void AddInventory(Product p)
