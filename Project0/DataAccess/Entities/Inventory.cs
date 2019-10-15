@@ -11,14 +11,12 @@ namespace DataAccess.Entities
         }
 
         public int InventoryId { get; set; }
-        public string Title { get; set; }
-        public string Rating { get; set; }
-        public string Details { get; set; }
-        public decimal Price { get; set; }
-        public int InventoryAmount { get; set; }
+        public int ProductId { get; set; }
         public int LocationId { get; set; }
+        public int InventoryAmount { get; set; }
 
         public virtual Stores Location { get; set; }
+        public virtual Products Product { get; set; }
         public virtual ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }

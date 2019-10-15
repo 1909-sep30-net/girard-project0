@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 
 namespace Project0
 {
@@ -30,7 +31,6 @@ namespace Project0
 
 
 
-
             string select;
 
             do
@@ -43,84 +43,102 @@ namespace Project0
                 switch (Int32.Parse(select))
                 {
                     case 1:
-                        
-                        repository.DisplayStores();
+
+                        List<BlockBuster> locations = new List<BlockBuster>();
+                        repository.GetStores(locations);
+                        DisplayStores(locations);
                         Console.WriteLine("Please enter the ID of your desired location?");
                         string id = Console.ReadLine();
-                        var sqlStore = repository.GetStoreById(Int32.Parse(id));
-                        BlockBuster store = new BlockBuster(sqlStore.LocationId, $"{sqlStore.City}, {sqlStore.State}");
+                        BlockBuster choice = SelectStore(locations, Int32.Parse(id));
                         Console.WriteLine("Enter Customer's First Name");
                         string fname = Console.ReadLine();
                         Console.WriteLine("Enter Customer's Last Name");
                         string lname = Console.ReadLine();
-                        var sqlCustomer = repository.GetCustomerByName(fname, lname);
-                        Customer customer = new Customer(sqlCustomer.CustomerId, sqlCustomer.FirstName, sqlCustomer.LastName);
-                        Console.WriteLine($"Thank you for visiting our {store.Location} location");
-                        Console.WriteLine("This is our current selection of movies and video games");
-                        repository.DisplayInventory(sqlStore);
-                        Order order = new Order();
-                        repository.MakeOrder(customer.CustomerId, store.LocationId, order.OrderDate);
-                        Console.WriteLine("Enter the ID number of your selection");
-                        string selection = Console.ReadLine();
-                        var sqlProduct = repository.GetProductById(store.LocationId, Int32.Parse(selection));
-                        Product add = new Product(sqlProduct.InventoryId, sqlProduct.Title, sqlProduct.Details, sqlProduct.Price, sqlProduct.Rating, sqlProduct.InventoryAmount);
-                        add.ReduceInventory();   
-                        repository.AddProductToOrder(order.OrderId, add.ProductId);
+                        Customer c = new Customer(fname, lname);
+                        repository.AddNewCustomer(c);
+                        Order o = new Order();
+                        repository.MakeOrder(c.CustomerId, choice.LocationId, o);
+                        string response;
+                        do
+                        {
+                            Console.WriteLine("This is our current selection of movies and video games");
+                            repository.DisplayInventory(choice.LocationId);
+                            Console.WriteLine("Please enter the title of your selection");
+                            string selection = Console.ReadLine();
+                            Product p = repository.GetProductByTitle(selection, choice);
+                            p.ReduceInventory();
+                            repository.EditInventory(choice, p);
+                            repository.AddProductToOrder(o, p);
+                            Console.WriteLine("Would you like to add another product to the order?");
+                            Console.WriteLine("Please enter Yes or No");
+                            response = Console.ReadLine();
+                        } while (response == "Yes");
                         break;
                     case 2:
+                        Console.WriteLine("Enter Customer's First Name");
+                        string firstname = Console.ReadLine();
+                        Console.WriteLine("Enter Customer's Last Name");
+                        string lastname = Console.ReadLine();
+                        var query = from customerS in context.Customers
+                                    join order in context.Orders on customerS.CustomerId equals order.CustomerId
+                                    join orderD in context.OrderDetails on order.OrderId equals orderD.OrderId
+                                    join inv in context.Inventory on orderD.InventoryId equals inv.InventoryId
+                                    join prod in context.Products on inv.ProductId equals prod.ProductId
+                                    where customerS.FirstName == firstname && customerS.LastName == lastname
+                                    select new { customerS.FirstName, customerS.LastName, order.Date, prod.Title, prod.Price };
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine(item);
+                        }
                         break;
-
+                    case 3:
+                        List<BlockBuster> locationLookup = new List<BlockBuster>();
+                        repository.GetStores(locationLookup);
+                        DisplayStores(locationLookup);
+                        Console.WriteLine("Please enter the ID of your desired location?");
+                        string pick = Console.ReadLine();
+                        var storeQuery = from store in context.Stores
+                                         join order in context.Orders on store.LocationId equals order.LocationId
+                                         join storeCust in context.Customers on order.CustomerId equals storeCust.CustomerId
+                                         join orderD in context.OrderDetails on order.OrderId equals orderD.OrderId
+                                         join inv in context.Inventory on orderD.InventoryId equals inv.InventoryId
+                                         join prod in context.Products on inv.ProductId equals prod.ProductId
+                                         where store.LocationId == Int32.Parse(pick)
+                                         select new { store.City, store.State, storeCust.FirstName, storeCust.LastName, order.Date, prod.Title, prod.Price };
+                        foreach (var item in storeQuery)
+                        {
+                            Console.WriteLine(item);
+                        }
+                        break;
                 }
-            } while (Int32.Parse(select) <= 6);
+            } while (Int32.Parse(select) <= 3);
         }
 
 
-        public static void DisplayOrderHistory(Customer c)
+
+        public static void DisplayStores(List<BlockBuster> print)
         {
-            Console.WriteLine($"{c.FirstName} {c.LastName}");
-            foreach (Order o in c.OrderHistory)
+            foreach (BlockBuster store in print)
             {
-                Console.WriteLine($"{o.OrderDate}");
-                foreach (Product p in o.ProductList)
-                {
-                    Console.WriteLine($"{p.Title} {p.Details} {p.Price} {p.Rating}");
-                }
-            }
-
-        }
-
-        public void DisplayOrderHistory(BlockBuster b, string location)
-        {
-
-        }
-
-        public static void DisplayProducts(BlockBuster b)
-        {
-            foreach (Product p in b.Inventory)
-            {
-                Console.WriteLine($"{p.Title} {p.Details} {p.Price} {p.Rating}");
+                Console.WriteLine($"ID: {store.LocationId} Location: {store.Location}");
             }
         }
 
-        public static List<string> AskCustomerName()
+        public static BlockBuster SelectStore(List<BlockBuster> stores, int id)
         {
-            Console.WriteLine("Enter Customer's First Name");
-            string fname = Console.ReadLine();
-            Console.WriteLine("Enter Customer's Last Name");
-            string lname = Console.ReadLine();
-            List<string> name = new List<string>();
-            name.Add(fname);
-            name.Add(lname);
-            return name;
+            var q = stores.Select(b => b).Where(n => n.LocationId == id);
+            return q.First();
         }
+
 
         public static void PrintMenu()
         {
             Console.WriteLine("\n\tMENU\n=======================================");
-            Console.WriteLine("\nMake an order ");
-            Console.WriteLine("\nDisplay customer order history");
+            Console.WriteLine("\n1. Make an order ");
+            Console.WriteLine("\n2. Display customer order history");
+            Console.WriteLine("\n3. Display store order history");
             Console.WriteLine("\n=======================================");
-            Console.WriteLine("\n Enter your choice (from 1 to 9 ): ");
+            Console.WriteLine("\n Enter your choice (from 1 to 3 ): ");
         }
     }
 }

@@ -1,73 +1,85 @@
 ﻿using DataAccess.Entities;
+using BusinessLogic;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 
 namespace DataAccess.Repositories
-{ 
+{
     public class BlockBusterRepository
     {
         private readonly BlockBusterContext _dbContext;
 
-        public BlockBusterRepository (BlockBusterContext context)
+        public BlockBusterRepository(BlockBusterContext context)
         {
             _dbContext = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public void DisplayStores ()
+
+        public List<BlockBuster> GetStores(List<BlockBuster> locations)
         {
-            foreach (Stores store in _dbContext.Stores)
+            if (_dbContext.Stores.Any())
             {
-                Console.WriteLine($"ID: {store.LocationId} {store.City}, {store.State}");
+                foreach (Stores store in _dbContext.Stores)
+                {
+                    BlockBuster b = new BlockBuster(store.LocationId, $"{store.City}, {store.State}");
+                    locations.Add(b);
+                }
+            } else
+            {
+                Console.WriteLine("There are no stores open");
             }
+            return locations;
         }
 
-        public Stores GetStoreById (int id)
-        {
-            return _dbContext.Stores.First(b => b.LocationId == id);
-        }
 
-        public void AddNewCustomer(string firstname, string lastname)
+        public void AddNewCustomer(Customer customer1)
         {
-            if (_dbContext.Customers.Any(c => (c.FirstName == firstname) && (c.LastName == lastname)))
+            if (_dbContext.Customers.Any(c => (c.FirstName == customer1.FirstName) && (c.LastName == customer1.LastName)))
             {
-                Console.WriteLine($"{firstname} {lastname} has already visited one our locations.");
+                Console.WriteLine($"{customer1.FirstName} {customer1.LastName} has already visited one our locations.");
                 return;
             }
 
             var customer = new DataAccess.Entities.Customers
             {
-                FirstName = firstname,
-                LastName = lastname
+                FirstName = customer1.FirstName,
+                LastName = customer1.LastName
             };
 
             _dbContext.Customers.Add(customer);
             _dbContext.SaveChanges();
+            customer1.CustomerId = customer.CustomerId;
         }
 
-        public void AddProductToOrder (int orderId, int productId)
+        public Product GetProductByTitle(string search, BlockBuster b)
         {
+            var sqlProduct = _dbContext.Products.First(p => p.Title == search);
+            var sqlInventory = _dbContext.Inventory.First(i => 
+            (i.ProductId == sqlProduct.ProductId) && (b.LocationId == i.LocationId));
+            Product product;
+            return product = new Product(sqlProduct.ProductId, sqlProduct.Title, sqlProduct.Details, 
+                sqlProduct.Price, sqlProduct.Rating, sqlInventory.InventoryAmount);
+        }   
+
+        public void AddProductToOrder(Order o, Product p)
+        {
+            var track = _dbContext.Inventory.Include(p => p.Product).Select(z => z).Where(l => (l.ProductId == p.ProductId));
             var product = new DataAccess.Entities.OrderDetails
             {
-                OrderId = orderId,
-                InventoryId = productId
+                OrderId = o.OrderId,
+                InventoryId = track.First().InventoryId
             };
 
             _dbContext.OrderDetails.Add(product);
             _dbContext.SaveChanges();
         }
 
-        public bool SearchCustomers (string firstname, string lastname)
+        public List<Customers> GetCustomers(string firstname, string lastname)
         {
-            if (_dbContext.Customers.Any(c => (c.FirstName == firstname) && (c.LastName == lastname)))
-            {
-                Console.WriteLine($"{firstname} {lastname} has already visited one of our locations.");
-                return true;
-            } else
-            {
-                return false;
-            }
+            return _dbContext.Customers.Select(c => c).ToList();
         }
 
         public Customers GetCustomerByName(string firstname, string lastname)
@@ -75,32 +87,43 @@ namespace DataAccess.Repositories
             return _dbContext.Customers.First(c => (c.FirstName == firstname) && (c.LastName == lastname));
         }
 
-        public void MakeOrder(int customerId, int storeId, DateTime date)
+        public void MakeOrder(int customerId, int storeId, Order blogic)
         {
             var order = new DataAccess.Entities.Orders
             {
                 CustomerId = customerId,
                 LocationId = storeId,
-                Date = date
+                Date = blogic.OrderDate
             };
 
             _dbContext.Orders.Add(order);
             _dbContext.SaveChanges();
+            blogic.OrderId = order.OrderId;
         }
 
-        public void DisplayInventory(Stores s)
+        public void DisplayInventory(int storeId)
         {
-            foreach (Inventory product in s.Inventory)
+            foreach (Inventory s in _dbContext.Inventory.Include(p => p.Product).Where(l => l.LocationId == storeId))
             {
-                Console.WriteLine($"ID: {product.InventoryId} Title: {product.Title} Rating: {product.Rating} Details: {product.Details} Price: {product.Price}");
+                Console.WriteLine($"ID: {s.Product.ProductId} Title: {s.Product.Title} " +
+                    $"Rating: {s.Product.Rating} Details: {s.Product.Details} Price: {s.Product.Price}");
             }
         }
 
-        public Inventory GetProductById (int storeId, int id)
+        public void DeleteInventory(BlockBuster b, Product p)
         {
-            return _dbContext.Inventory.First(p => (p.InventoryId == id) && (storeId == p.LocationId));
+            _dbContext.Inventory.Remove(_dbContext.Inventory.
+                First(i => (i.LocationId == b.LocationId) && (i.ProductId == p.ProductId)));
         }
 
+        public void EditInventory(BlockBuster b, Product p)
+        {
+            var Inventory = _dbContext.Inventory.First(i => (i.LocationId == b.LocationId) && (i.ProductId == p.ProductId));
+
+            Inventory.InventoryAmount = p.InventoryAmount;
+            _dbContext.SaveChanges();
+            p.ProductId = Inventory.ProductId;
+        }
 
 
     }
