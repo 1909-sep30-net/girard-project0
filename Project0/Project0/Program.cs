@@ -13,16 +13,20 @@ namespace Project0
 {
     public class Program
     {
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder => {
-            builder.AddConsole();
+        
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddSerilog();
         });
         static void Main(string[] args)
         {
             string connectionString = SecretConfiguration.ConnectionString;
 
+            Log.Logger = new LoggerConfiguration().WriteTo.File("D:\\Revature\\girard-project0\\Project0\\log.txt").CreateLogger();
+
             DbContextOptions<BlockBusterContext> options = new DbContextOptionsBuilder<BlockBusterContext>()
                 .UseSqlServer(connectionString)
-                //.UseLoggerFactory(MyLoggerFactory)
+                .UseLoggerFactory(MyLoggerFactory.AddSerilog(Log.Logger))
                 .Options;
 
             using var context = new BlockBusterContext(options);
@@ -60,13 +64,12 @@ namespace Project0
                             if (!repository.SearchForCustomer(c))
                             {
                                 repository.AddNewCustomer(c);
-                            } else
+                            }
+                            else
                             {
                                 var retCust = repository.GetCustomerByName(c.FirstName, c.LastName);
                                 c.CustomerId = retCust.CustomerId;
                             }
-                            Order o = new Order();
-                            repository.MakeOrder(c.CustomerId, choice.LocationId, o);
                             string response;
                             do
                             {
@@ -75,6 +78,8 @@ namespace Project0
                                 Console.WriteLine("\nPlease enter the title of your selection");
                                 string selection = Console.ReadLine();
                                 Product p = repository.GetProductByTitle(selection, choice);
+                                Order o = new Order();
+                                repository.MakeOrder(c.CustomerId, choice.LocationId, o);
                                 p.ReduceInventory();
                                 repository.EditInventory(choice, p);
                                 repository.AddProductToOrder(o, p);
@@ -82,29 +87,38 @@ namespace Project0
                                 Console.WriteLine("Please enter Yes or No");
                                 response = Console.ReadLine();
                             } while (response == "Yes" || response == "yes");
-                        } catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             Console.Clear();
                             Console.WriteLine($"\n{ex.Message}");
                         }
                         break;
                     case 2:
-                        Console.Clear();
-                        Console.WriteLine("\nEnter Customer's First Name");
-                        string firstname = Console.ReadLine();
-                        Console.WriteLine("Enter Customer's Last Name");
-                        string lastname = Console.ReadLine();
-                        Console.Clear();
-                        var query = from customerS in context.Customers
-                                    join order in context.Orders on customerS.CustomerId equals order.CustomerId
-                                    join orderD in context.OrderDetails on order.OrderId equals orderD.OrderId
-                                    join inv in context.Inventory on orderD.InventoryId equals inv.InventoryId
-                                    join prod in context.Products on inv.ProductId equals prod.ProductId
-                                    where customerS.FirstName == firstname && customerS.LastName == lastname
-                                    select new { customerS.FirstName, customerS.LastName, order.Date, prod.Title, prod.Price };
-                        foreach (var item in query)
+                        try
                         {
-                            Console.WriteLine($"Name: {item.FirstName} {item.LastName} Date: {item.Date} \nTitle: {item.Title} Price: ${item.Price}");
+                            Console.Clear();
+                            Console.WriteLine("\nEnter Customer's First Name");
+                            string firstname = Console.ReadLine();
+                            Console.WriteLine("Enter Customer's Last Name");
+                            string lastname = Console.ReadLine();
+                            Customer custHistory = new Customer(firstname, lastname);
+                            Console.Clear();
+                            var query = from customerS in context.Customers
+                                        join order in context.Orders on customerS.CustomerId equals order.CustomerId
+                                        join orderD in context.OrderDetails on order.OrderId equals orderD.OrderId
+                                        join inv in context.Inventory on orderD.InventoryId equals inv.InventoryId
+                                        join prod in context.Products on inv.ProductId equals prod.ProductId
+                                        where customerS.FirstName == custHistory.FirstName && customerS.LastName == custHistory.LastName
+                                        select new { order.OrderId, customerS.FirstName, customerS.LastName, order.Date, prod.Title, prod.Price };
+                            foreach (var item in query)
+                            {
+                                Console.WriteLine($"OrderID: {item.OrderId} Name: {item.FirstName} {item.LastName} Date: {item.Date} \nTitle: {item.Title} Price: ${item.Price}");
+                            }
+                        } catch (Exception e)
+                        {
+                            Console.Clear();
+                            Console.WriteLine($"\n{e.Message}");
                         }
                         break;
                     case 3:
@@ -115,17 +129,24 @@ namespace Project0
                         Console.WriteLine("\nPlease enter the ID of your desired location?");
                         string pick = Console.ReadLine();
                         Console.Clear();
-                        var storeQuery = from store in context.Stores
-                                         join order in context.Orders on store.LocationId equals order.LocationId
-                                         join storeCust in context.Customers on order.CustomerId equals storeCust.CustomerId
-                                         join orderD in context.OrderDetails on order.OrderId equals orderD.OrderId
-                                         join inv in context.Inventory on orderD.InventoryId equals inv.InventoryId
-                                         join prod in context.Products on inv.ProductId equals prod.ProductId
-                                         where store.LocationId == Int32.Parse(pick)
-                                         select new { store.City, store.State, storeCust.FirstName, storeCust.LastName, order.Date, prod.Title, prod.Price };
-                        foreach (var item in storeQuery)
+                        try
                         {
-                            Console.WriteLine($"Store Location: {item.City}, {item.State}\nName: {item.FirstName} {item.LastName} Date: {item.Date} \nTitle: {item.Title} Price: ${item.Price}\n");
+                            var storeQuery = from store in context.Stores
+                                             join order in context.Orders on store.LocationId equals order.LocationId
+                                             join storeCust in context.Customers on order.CustomerId equals storeCust.CustomerId
+                                             join orderD in context.OrderDetails on order.OrderId equals orderD.OrderId
+                                             join inv in context.Inventory on orderD.InventoryId equals inv.InventoryId
+                                             join prod in context.Products on inv.ProductId equals prod.ProductId
+                                             where store.LocationId == Int32.Parse(pick)
+                                             select new { store.City, store.State, storeCust.FirstName, storeCust.LastName, order.Date, prod.Title, prod.Price, inv.InventoryAmount };
+                            foreach (var item in storeQuery)
+                            {
+                                Console.WriteLine($"Store Location: {item.City}, {item.State}\nName: {item.FirstName} {item.LastName} Date: {item.Date} \nTitle: {item.Title} Price: ${item.Price}\n In Stock: {item.InventoryAmount}\n");
+                            }
+                        } catch (Exception x)
+                        {
+                            Console.Clear();
+                            Console.WriteLine($"\nYou forgot to enter a valid ID.");
                         }
                         break;
                 }
