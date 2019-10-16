@@ -12,46 +12,34 @@ namespace BusinessLogic
 
         public string FirstName
         {
-            get 
-            {
-                return _FirstName;
-            } 
+            get => _FirstName;
             set
             {
-                if (value == "")
+                if (value.Length == 0)
                 {
-                    Console.WriteLine("You forgot to enter the customer's first name");
+                    throw new ArgumentException("You forgot to enter the customer's first name", nameof(value));
                 }
                 else if (value.Length > 20)
                 {
-                    Console.WriteLine("That first name exceeds the 25 character limit\n Please try again.\n");
+                    throw new ArgumentException("That first name exceeds the 25 character limit\n Please try again.\n", nameof(value));
                 }
-                else
-                {
-                    this._FirstName = value;
-                }
+                _FirstName = value;
             } 
         }
         public string LastName 
         {
-            get
-            {
-                return _LastName;
-            }
+            get => _LastName;
             set
             {
-                if (value == "")
+                if (value.Length == 0)
                 {
-                    Console.WriteLine("You forgot to enter the customer's last name");
+                    throw new ArgumentException("You forgot to enter the customer's last name", nameof(value));
                 }
                 else if (value.Length > 20)
                 {
-                    Console.WriteLine("That last name exceeds the 25 character limit\n Please try again.\n");
+                    throw new ArgumentException("That last name exceeds the 25 character limit\n Please try again.\n", nameof(value));
                 }
-                else
-                {
-                    this._LastName = value;
-                }
+                _LastName = value;
             }
         }
 

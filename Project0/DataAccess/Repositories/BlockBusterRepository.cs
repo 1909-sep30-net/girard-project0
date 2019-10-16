@@ -34,14 +34,20 @@ namespace DataAccess.Repositories
             return locations;
         }
 
-
-        public void AddNewCustomer(Customer customer1)
+        public bool SearchForCustomer(Customer customer1)
         {
             if (_dbContext.Customers.Any(c => (c.FirstName == customer1.FirstName) && (c.LastName == customer1.LastName)))
             {
-                Console.WriteLine($"{customer1.FirstName} {customer1.LastName} has already visited one our locations.");
-                return;
+                return true;
+            } else
+            {
+                return false;
             }
+        }
+
+
+        public void AddNewCustomer(Customer customer1)
+        {
 
             var customer = new DataAccess.Entities.Customers
             {
@@ -105,8 +111,8 @@ namespace DataAccess.Repositories
         {
             foreach (Inventory s in _dbContext.Inventory.Include(p => p.Product).Where(l => l.LocationId == storeId))
             {
-                Console.WriteLine($"ID: {s.Product.ProductId} Title: {s.Product.Title} " +
-                    $"Rating: {s.Product.Rating} Details: {s.Product.Details} Price: {s.Product.Price}");
+                Console.WriteLine($"\nTitle: {s.Product.Title} " +
+                    $"Rated: {s.Product.Rating}\nDetails: {s.Product.Details}\nPrice: {s.Product.Price}");
             }
         }
 

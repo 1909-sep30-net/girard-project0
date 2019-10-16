@@ -6,9 +6,38 @@ namespace BusinessLogic
 {
     public class Product
     {
-        public int InventoryAmount { get; set; }
+        private int _InventoryAmount;
+        public int InventoryAmount
+        {
+            get => _InventoryAmount;
+            set
+            {
+                if (value == 0)
+                {
+                    throw new ArgumentException("The inventory amount can't be set to zero", nameof(value));
+                }
+                else if (value < 0)
+                {
+                    throw new ArgumentException("The inventory amount can't be set to a negative number\n", nameof(value));
+                }
+                _InventoryAmount = value;
+            }
+        }
 
-        public string Title { get; set; }
+        private string _Title;
+
+        public string Title
+        {
+            get => _Title;
+            set
+            {
+                if (value.Length == 0)
+                {
+                    throw new ArgumentException("You forgot to enter the Title.", nameof(value));
+                }
+                _Title = value;
+            }
+        }
 
         public decimal Price { get; set; }
         public string Rating { get; set; }
